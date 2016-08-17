@@ -19,19 +19,34 @@ class NetworkConnectionHandler: NSObject {
 
 	var networkDelegate: NetworkConnectionHandlerDelegate!
 
-	func callAPIForInvoiceList(withTag: NSInteger) {
-		let url:NSURL = NSURL(string: "http://test-servd.weboapps.com/en/api/v4/users/757/invoices/")!
-		let session = NSURLSession.sharedSession()
+	func sendErrorToSender(response: AnyObject, tag: NSInteger) {
+		networkDelegate?.networkConnectionDidFailWithError(response.valueForKey("message") as! String, tag: tag)
+	}
 
-		let request = NSMutableURLRequest(URL: url)
-		request.HTTPMethod = "GET"
+	func sendResponseToSender(response: AnyObject, tag: NSInteger) {
+		if (response.valueForKey("status") as! NSInteger == 200) {
+			networkDelegate?.networkConnectionFinishedSuccessfully(response, tag: tag)
+		}
+		else {
+			networkDelegate?.networkRequestRejected(response.valueForKey("message") as! String, tag: tag)
+		}
+	}
+
+	func getRequestBodyWithRequestType(requestType: String, forURL: NSURL, parameters: NSDictionary) -> NSMutableURLRequest {
+
+		let request = NSMutableURLRequest(URL: forURL)
+		request.HTTPMethod = requestType
+		//let dataParameters : NSData = NSKeyedArchiver.archivedDataWithRootObject(parameters)
+		//request.HTTPBody = dataParameters
 		request.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringCacheData
 		request.setValue("Token ACs3erd52df94e59c1825593e5efe108b1ccc8", forHTTPHeaderField:"Authorization")
+		return request
+	}
 
+	func callWebServiceForSession(session: NSURLSession, request: NSMutableURLRequest, withTag: NSInteger) {
 		let task = session.dataTaskWithRequest(request) {
 			(
 			let data, let response, let error) in
-
 			guard let _:NSData = data, let _:NSURLResponse = response  where error == nil else {
 				print("error")
 				return
@@ -49,16 +64,19 @@ class NetworkConnectionHandler: NSObject {
 		task.resume()
 	}
 
-	func sendErrorToSender(response: AnyObject, tag: NSInteger) {
-		networkDelegate?.networkConnectionDidFailWithError(response.valueForKey("message") as! String, tag: tag)
+	func getInvoiceList(withTag: NSInteger) {
+
+		let url:NSURL = NSURL(string: "http://test-servd.weboapps.com/en/api/v4/users/757/invoices/")!
+		let session = NSURLSession.sharedSession()
+		let request = self.getRequestBodyWithRequestType("GET", forURL: url, parameters: [:])
+		callWebServiceForSession(session, request: request, withTag: withTag)
 	}
 
-	func sendResponseToSender(response: AnyObject, tag: NSInteger) {
-		if (response.valueForKey("status") as! NSInteger == 200) {
-			networkDelegate?.networkConnectionFinishedSuccessfully(response, tag: tag)
-		}
-		else {
-			networkDelegate?.networkRequestRejected(response.valueForKey("message") as! String, tag: tag)
-		}
+	func getNotificationsList(withTag: NSInteger) {
+
+		let url:NSURL = NSURL(string: "http://test-servd.weboapps.com/en/api/v4/users/757/notifications/")!
+		let session = NSURLSession.sharedSession()
+		let request = self.getRequestBodyWithRequestType("GET", forURL: url, parameters: [:])
+		callWebServiceForSession(session, request: request, withTag: withTag)
 	}
 }

@@ -25,13 +25,20 @@ class MyViewModel: NSObject, NetworkConnectionHandlerDelegate {
 
 		let networkDelegateHandler = NetworkConnectionHandler()
 		networkDelegateHandler.networkDelegate = self
-		networkDelegateHandler.callAPIForInvoiceList(0)
+		networkDelegateHandler.getInvoiceList(0)
+		//networkDelegateHandler.getNotificationsList(1)
 	}
 
 	func networkConnectionFinishedSuccessfully(responseObject: AnyObject, tag: NSInteger) {
-		
-		arrayInvoicesModel = parseDataIntoModel(responseObject as! NSDictionary)
-		viewModelDelegate?.sendResponse(responseObject as! NSDictionary)
+
+		if tag == 0 {
+
+			arrayInvoicesModel = parseDataIntoModel(responseObject as! NSDictionary)
+			viewModelDelegate?.sendResponse(responseObject as! NSDictionary)
+		}
+		else {
+			print(responseObject)
+		}
 	}
 
 	func networkConnectionDidFailWithError(errorMessage:String, tag: NSInteger) {
