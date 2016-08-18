@@ -39,7 +39,7 @@ class NetworkConnectionHandler: NSObject {
 		//let dataParameters : NSData = NSKeyedArchiver.archivedDataWithRootObject(parameters)
 		//request.HTTPBody = dataParameters
 		request.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringCacheData
-		request.setValue("Token ACs3erd52df94e59c1825593e5efe108b1ccc8", forHTTPHeaderField:"Authorization")
+		request.setValue("Token XXXXXXX", forHTTPHeaderField:"Authorization")
 		return request
 	}
 
